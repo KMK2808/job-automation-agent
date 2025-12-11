@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv("LLM_API_KEY")
 
-YOUR_NAME = "Kollu Manoj Kumar"
-YOUR_EMAIL = "kollumanojkumar3@gmail.com"
-YOUR_PHONE = "+91 6363782297"
+YOUR_NAME = "Your name"
+YOUR_EMAIL = "Your Email"
+YOUR_PHONE = "Your NUmber"
 
 
 # ----- Template variants for middle paragraph -----
