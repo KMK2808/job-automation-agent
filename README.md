@@ -231,14 +231,3 @@ Both reuse `generate_email.py`, `send_email.py`, and `sent_log.csv` for the actu
   - Extend role detection and templates to cover Data Scientist, ML Engineer, or generic Software Engineer roles.
 
 ***
-
-## License
-
-You can choose any OSI‑approved license you prefer for your GitHub repo (MIT is a common, simple choice).
-
-[1](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/81971425/1598fdc2-b27b-4299-9973-235e89e33f79/1800-Talent-Acquisition-Database.xlsx)
-[2](https://www.codecademy.com/projects/subject/artificial-intelligence/portfolio)
-[3](https://www.geeksforgeeks.org/artificial-intelligence/best-artificial-intelligence-project-ideas/)
-[4](https://www.kdnuggets.com/7-ai-portfolio-projects-to-boost-the-resume)
-[5](https://seenly.io/does-linkedin-allow-automation-and-scraping/)
-[6](https://www.linkedin.com/help/linkedin/answer/a1341387/prohibited-software-and-extensions)
