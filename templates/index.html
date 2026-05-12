@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Automation Agent</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --surface: #f8fafc;
+      --surface-2: #eef4fb;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #dbe3ee;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --danger: #b91c1c;
+      --warn: #a16207;
+      --warn-bg: #fef3c7;
+      --warn-line: #fde68a;
+      --error-bg: #fee2e2;
+      --error-line: #fecaca;
+      --input-bg: #ffffff;
+      --shadow: 0 14px 40px rgba(2, 6, 23, 0.08);
+      --hero-a: #d1fae5;
+      --hero-b: #ffedd5;
+    }
+    [data-theme="sunset"] {
+      --accent: #c2410c;
+      --accent-strong: #9a3412;
+      --hero-a: #ffedd5;
+      --hero-b: #fecaca;
+    }
+    [data-theme="ocean"] {
+      --accent: #0e7490;
+      --accent-strong: #155e75;
+      --hero-a: #cffafe;
+      --hero-b: #dbeafe;
+    }
+    [data-theme="midnight"] {
+      --bg: #0b1220;
+      --panel: #101a2f;
+      --text: #e5edf7;
+      --muted: #b9c7dc;
+      --line: #2a3956;
+      --accent: #22d3ee;
+      --accent-strong: #0891b2;
+      --danger: #fca5a5;
+      --warn: #fcd34d;
+      --warn-bg: #2a250f;
+      --warn-line: #6b5f21;
+      --error-bg: #31161a;
+      --error-line: #7c2d35;
+      --input-bg: #0f1f39;
+      --surface: #0c1629;
+      --surface-2: #101d33;
+      --hero-a: #0b1d39;
+      --hero-b: #12243e;
+    }
+    [data-theme="graphite"] {
+      --bg: #111111;
+      --panel: #1b1b1b;
+      --text: #f3f4f6;
+      --muted: #c9cbd1;
+      --line: #34353a;
+      --accent: #f97316;
+      --accent-strong: #c2410c;
+      --danger: #fda4af;
+      --warn: #fcd34d;
+      --warn-bg: #2d260f;
+      --warn-line: #5a4d24;
+      --error-bg: #35191f;
+      --error-line: #6b2a36;
+      --input-bg: #242428;
+      --surface: #17181c;
+      --surface-2: #1f2024;
+      --hero-a: #1f1a14;
+      --hero-b: #1f1a20;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background:
+        radial-gradient(80rem 28rem at 8% -5%, var(--hero-a), transparent 60%),
+        radial-gradient(70rem 22rem at 95% 8%, var(--hero-b), transparent 62%),
+        var(--bg);
+    }
+    .wrap { max-width: 1160px; margin: 30px auto; padding: 0 14px; }
+    .theme-switch {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+    .theme-switch button {
+      width: auto;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    h1 { margin: 0 0 6px 0; }
+    .sub { margin: 0 0 18px 0; color: var(--muted); }
+    .hint {
+      color: var(--warn);
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin: 0 0 10px 0;
+    }
+    .error {
+      color: var(--danger);
+      background: var(--error-bg);
+      border: 1px solid var(--error-line);
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin: 10px 0;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: var(--input-bg);
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus, select:focus {
+      outline: 2px solid color-mix(in srgb, var(--accent) 32%, white);
+      border-color: var(--accent);
+    }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .btn {
+      font-weight: 700;
+      color: #fff;
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      cursor: pointer;
+    }
+    .btn-alt {
+      font-weight: 700;
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--line);
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--surface);
+      margin-top: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      text-align: left;
+      padding: 9px;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+      vertical-align: top;
+    }
+    th { background: color-mix(in srgb, var(--accent) 12%, white); }
+    td { background: var(--surface); color: var(--text); }
+    tr:nth-child(even) td { background: var(--surface-2); }
+    tbody tr:hover td {
+      background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    }
+    @media (max-width: 900px) {
+      .grid, .grid3, .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="theme-switch">
+      <button type="button" onclick="setTheme('default')">Forest</button>
+      <button type="button" onclick="setTheme('sunset')">Sunset</button>
+      <button type="button" onclick="setTheme('ocean')">Ocean</button>
+      <button type="button" onclick="setTheme('midnight')">Midnight</button>
+      <button type="button" onclick="setTheme('graphite')">Graphite</button>
+    </div>
+
+    <div class="panel">
+      <h1>Job Automation Agent</h1>
+      <p class="sub">Single-page workflow: upload, map, preview, and send.</p>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+      <form action="/" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="prepare">
+        <label>Recruiter File (CSV/XLSX)</label>
+        <input type="file" name="contacts_file" accept=".csv,.xlsx,.xls" required>
+
+        <div class="grid">
+          <div>
+            <label>Default Role (if missing)</label>
+            <input name="default_role" value="{{ default_role }}">
+          </div>
+          <div>
+            <label>Excel Sheet Name (optional)</label>
+            <input name="sheet_name" placeholder="Sheet1" value="{{ sheet_name }}">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Daily Limit</label>
+            <input type="number" min="1" name="daily_limit" value="{{ daily_limit }}">
+          </div>
+          <div>
+            <label>Delay Seconds</label>
+            <input type="number" min="0" name="delay_seconds" value="{{ delay_seconds }}">
+          </div>
+        </div>
+
+        <label>Sent Log Path</label>
+        <input name="log_path" value="{{ log_path }}">
+
+        <label>Email Template Path (use <code>auto</code> for role-based templates)</label>
+        <input name="template_path" value="{{ template_path }}">
+
+        <label>Resume PDF Path</label>
+        <input name="resume_path" value="{{ resume_path }}">
+
+        <label>Contact Status Tracker Path</label>
+        <input name="status_path" value="{{ status_path }}">
+
+        <button class="btn" type="submit">Load Columns</button>
+      </form>
+
+      {% if columns and token %}
+      {% if validation %}
+      <div class="card">
+        <h2 style="margin-top:0;">Validation Dashboard</h2>
+        <div class="grid3">
+          <div>Total rows: <strong>{{ validation.total_rows }}</strong></div>
+          <div>Valid emails: <strong>{{ validation.valid_rows }}</strong></div>
+          <div>Invalid emails: <strong>{{ validation.invalid_rows }}</strong></div>
+        </div>
+        <div class="grid3" style="margin-top:8px;">
+          <div>Guessed recruiter names: <strong>{{ validation.guessed_name_count }}</strong></div>
+          <div>Guessed companies: <strong>{{ validation.guessed_company_count }}</strong></div>
+          <div>Default role applied: <strong>{{ validation.default_role_applied_count }}</strong></div>
+        </div>
+        {% if validation.invalid_samples %}
+        <h3>Invalid Email Samples</h3>
+        <table>
+          <thead><tr><th>Row</th><th>Email</th><th>Reason</th></tr></thead>
+          <tbody>
+            {% for row in validation.invalid_samples %}
+            <tr>
+              <td>{{ row.row_number }}</td>
+              <td>{{ row.email }}</td>
+              <td>{{ row.reason }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <h2 style="margin-top:0;">Column Mapping</h2>
+        <p class="hint">Only Email is mandatory. Missing HR/Company will be inferred from email.</p>
+        <form action="/" method="post">
+          <input type="hidden" name="token" value="{{ token }}">
+          <input type="hidden" name="default_role" value="{{ default_role }}">
+          <input type="hidden" name="daily_limit" value="{{ daily_limit }}">
+          <input type="hidden" name="delay_seconds" value="{{ delay_seconds }}">
+          <input type="hidden" name="log_path" value="{{ log_path }}">
+          <input type="hidden" name="template_path" value="{{ template_path }}">
+          <input type="hidden" name="resume_path" value="{{ resume_path }}">
+          <input type="hidden" name="status_path" value="{{ status_path }}">
+          <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
+
+          <div class="grid">
+            <div>
+              <label>Email Column (required)</label>
+              <select name="email_col" required>
+                {% for col in columns %}
+                <option value="{{ col }}" {% if col == detected.email %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label>HR Name Column (optional)</label>
+              <select name="hr_col">
+                <option value="">-- Infer from email --</option>
+                {% for col in columns %}
+                <option value="{{ col }}" {% if col == detected.hr_name %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div>
+              <label>Company Column (optional)</label>
+              <select name="company_col">
+                <option value="">-- Infer from email --</option>
+                {% for col in columns %}
+                <option value="{{ col }}" {% if col == detected.company_name %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label>Role Column (optional)</label>
+              <select name="role_col">
+                <option value="">-- Use default role --</option>
+                {% for col in columns %}
+                <option value="{{ col }}" {% if col == detected.role %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <label style="margin-top:14px;">
+            <input type="checkbox" name="confirm_send" value="yes" style="width:auto; margin-right:8px;">
+            I confirm and want to actually send emails
+          </label>
+          <label style="margin-top:8px;">
+            <input type="checkbox" name="allow_resend" value="yes" {% if allow_resend %}checked{% endif %} style="width:auto; margin-right:8px;">
+            Allow resend even if email already has SENT status
+          </label>
+
+          <div class="actions">
+            <button class="btn-alt" type="submit" name="action" value="preview">Preview (Safe)</button>
+            <button class="btn" type="submit" name="action" value="send">Send Emails</button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+
+      {% if result %}
+      <div class="card">
+        <h2 style="margin-top:0;">Run Result</h2>
+        <p class="sub" style="margin-bottom: 8px;">
+          Master log: <strong>{{ result.log_path }}</strong>
+          {% if result.history_log_path %}
+          | History log: <strong>{{ result.history_log_path }}</strong>
+          {% endif %}
+          {% if result.status_tracker_path %}
+          | Contact tracker: <strong>{{ result.status_tracker_path }}</strong>
+          {% endif %}
+        </p>
+        <div class="grid3">
+          <div>Processed: <strong>{{ result.processed_contacts }}</strong></div>
+          <div>Sent/Dry-run: <strong>{{ result.sent_or_dryrun_count }}</strong></div>
+          <div>Skipped existing: <strong>{{ result.skipped_existing|length }}</strong></div>
+        </div>
+        {% if result.skipped_existing %}
+        <p class="sub" style="margin-top:8px;">
+          Skipped because already SENT in log. Enable "Allow resend" to override.
+        </p>
+        {% endif %}
+
+        <h3>Preview Rows</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th><th>HR</th><th>Company</th><th>Role</th><th>Subject</th><th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in result.preview_rows %}
+            <tr>
+              <td>{{ row.email }}</td>
+              <td>{{ row.hr_name }}</td>
+              <td>{{ row.company_name }}</td>
+              <td>{{ row.role }}</td>
+              <td>{{ row.subject }}</td>
+              <td>{{ row.notes }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if result.failed_rows %}
+        <h3>Failures</h3>
+        <table>
+          <thead><tr><th>Email</th><th>Reason</th></tr></thead>
+          <tbody>
+            {% for row in result.failed_rows %}
+            <tr><td>{{ row.email }}</td><td>{{ row.reason }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <script>
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("ja_theme", theme);
+    }
+    const savedTheme = localStorage.getItem("ja_theme");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    }
+  </script>
+</body>
+</html>

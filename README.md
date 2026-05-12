@@ -1,233 +1,154 @@
-# AI Job Outreach Agent
-AI‑powered outreach tool that helps data / BI professionals send personalized, HTML emails with attached resumes to recruiters and HR contacts at scale. 
-It supports CSV‑based contact lists, OpenAI‑powered tailoring, logging to avoid duplicates, and can be extended with a web UI (Flask/Streamlit).
-This project is aimed at Power BI / Data Engineering roles but is easy to adapt to other domains.[1]
+# Job Automation Agent
 
-***
+Job Automation Agent is a Python-based email outreach tool for job applications.
+It supports CSV/Excel contact lists, dynamic column mapping, optional LLM-assisted personalization, and a single-page Flask UI for preview-first sending.
 
-## Features
+## What Is New
 
-- **CSV‑driven outreach**  
-  - Upload or maintain recruiter lists in CSV format with columns such as `Company Name`, `HR Name`, `Email`, and `Role`.[1]
+- Single-page Flask workflow:
+  - Upload file
+  - Configure defaults
+  - Map columns
+  - Preview
+  - Send
+- Dynamic mapping:
+  - You are not locked to fixed column names.
+  - Only email is mandatory.
+- Fallback inference from email:
+  - Missing recruiter name and company can be inferred from `local@domain.com`.
+- Dynamic role fallback:
+  - Uses row role if available, otherwise default role from UI/CLI.
+- External editable email template:
+  - Update HTML in `templates/email_template.html` without changing Python code.
+- Safer operations:
+  - Preview-first flow
+  - Dry-run behavior and explicit confirmation in UI before live send
+  - Delay and daily limit controls
+- Better logging:
+  - `sent_log.csv` as master log
+  - `logs/run_history.csv` as append-only run history
+  - De-dup checks only rows with `Status=SENT`
+- UI themes:
+  - Forest, Sunset, Ocean, Midnight, Graphite
 
-- **Role‑aware email generation**  
-  - Uses fixed, professional templates plus optional OpenAI tweaks to adapt one paragraph and subject line for each role (e.g., Power BI Developer vs Data Engineer).   
-  - HTML emails with bold highlights for key skills (Power BI, SQL, Azure, etc.) and an attached resume PDF.
-
-- **Bulk sending with safety controls**  
-  - Delay between emails (e.g., 10–20 seconds) to avoid spammy bursts.  
-  - Daily send limit to control volume.  
-  - Error handling so one failed send does not stop the whole run.
-
-- **Logging and de‑duplication**  
-  - All successful sends are logged to `sent_log.csv` with `Date`, `Email`, `Company Name`, `Role`, and `Subject`.   
-  - Before sending, the agent checks this log and skips addresses that were already contacted.
-
-- **LLM‑assisted personalization (optional)**  
-  - Integrates with OpenAI’s Chat Completions API to:  
-    - Slightly refine the subject line per role.  
-    - Rewrite a middle paragraph to emphasize skills most relevant to that role, without inventing facts.   
-
-- **Extensible architecture**  
-  - Clear separation of concerns:  
-    - `generate_email.py` – content generation.  
-    - `send_email.py` – transport and attachment.  
-    - `main.py` – orchestration, logging, de‑duplication, and safety controls.   
-  - Can be wrapped by a Flask/Streamlit front‑end without changing the core logic.
-
-***
-
-## Project structure
+## Project Structure
 
 ```text
 .
-├── generate_email.py      # Builds HTML email content, role-aware + optional OpenAI tweaks
-├── send_email.py          # Sends emails via Gmail SMTP with resume attachment
-├── main.py                # CLI orchestrator: reads CSV, loops over contacts, logs sends
-├── recruiters.csv         # Sample recruiter/contact list (not committed in real repo)
-├── sent_log.csv           # Generated log of sent emails (git-ignored in real use)
-├── .env                   # Environment variables (never commit)
-└── README.md
+|-- app.py
+|-- main.py
+|-- outreach_core.py
+|-- generate_email.py
+|-- send_email.py
+|-- requirements.txt
+|-- templates/
+|   |-- index.html
+|   `-- email_template.html
+|-- logs/
+|   `-- run_history.csv
+|-- sent_log.csv
+`-- .env
 ```
 
-Optional (if you add a web UI):
+## Requirements
 
-```text
-├── app.py                 # Flask or Streamlit app (web front-end)
-└── templates/             # HTML templates for Flask
-```
+- Python 3.10+
+- Gmail account with App Password
+- OpenAI API key (optional)
 
-***
-
-## Prerequisites
-
-- Python 3.10+  
-- A Gmail account with **App Password** enabled for SMTP sending.   
-- An OpenAI API key (optional but recommended for LLM features). 
-
-Python packages:
+Install dependencies:
 
 ```bash
-pip install pandas python-dotenv requests
-# plus, if you use Flask or Streamlit:
-pip install flask         # or: pip install streamlit
+pip install -r requirements.txt
 ```
 
-***
+## Environment Variables
 
-## Environment configuration
-
-Create a `.env` file in the project root (do not commit this file):
+Create `.env` in project root:
 
 ```env
 EMAIL_ADDRESS=yourgmail@gmail.com
-EMAIL_PASSWORD=your_app_password   # 16-char Gmail App Password without spaces
-LLM_API_KEY=your_openai_api_key    # used by generate_email.py
+EMAIL_PASSWORD=your_gmail_app_password
+LLM_API_KEY=your_openai_key
+SENDER_NAME=Your Name
+CANDIDATE_NAME=Your Name
+CANDIDATE_EMAIL=yourgmail@gmail.com
+CANDIDATE_PHONE=your_phone
+YEARS_EXPERIENCE=3.5
+RESUME_PATH=Kollu_Manoj_Kumar_Data_engineering_PowerBI_2026.pdf
+EMAIL_TEMPLATE_PATH=templates/email_template.html
+LLM_MODEL=gpt-4o-mini
 ```
 
-- Generate a Gmail App Password in your Google Account under **Security → App passwords**, then paste it into `EMAIL_PASSWORD` with no spaces.   
-- `LLM_API_KEY` is optional; if missing, the agent falls back to fixed templates.
+Minimum required:
 
-***
+- `EMAIL_ADDRESS`
+- `EMAIL_PASSWORD`
+- `RESUME_PATH`
 
-## Input data format
+## Input File Support
 
-The outreach agent expects a CSV file called `recruiters.csv` in the project root with at least these columns:
+Supported input formats:
 
-- `Company Name` – e.g., `LTI Mindtree`, `Virtusa`.   
-- `HR Name` – recruiter or HR name (can be blank).[1]
-- `Email` – contact email address.   
-- `Role` – target role title, e.g., `Power BI Developer`, `Senior Data Engineer`, `Data Analyst`.[1]
+- `.csv`
+- `.xlsx`
+- `.xls`
 
-Example:
+Expected fields (flexible names, mapped in UI):
 
-```csv
-Company Name,HR Name,Email,Role
-LTI Mindtree,Gayatri Gupta,Gayatri.gupta2@ltimindtree.com,Power BI Developer
-Virtusa,Mary Sherin,marysherin@virtusa.com,Data Analyst
-GoKwik,Chetna Gogia,example@gokwik.co,Senior Data Engineer
+- Email (required)
+- HR/Recruiter Name (optional)
+- Company Name (optional)
+- Role (optional)
+
+If HR name or company is missing, the app infers values from email.
+
+## Run (Flask UI)
+
+```bash
+python app.py
 ```
 
-You can build this file manually, export from existing Excel sheets, or generate it from other sources, as long as the headers match.
-***
-## How it works
-### 1. Email generation (`generate_email.py`)
+Open:
 
-- Reads environment variables and constants (your name, email, phone).  
-- For each contact, it:  
-  - Builds a base subject like:  
-    - `Application for Power BI Developer or Azure Data engineer Roles | 3 Years Experience`.  
-  - Selects a middle paragraph template based on the `Role` (Power BI vs Data Engineer vs generic data).  
-  - Optionally calls OpenAI to refine:  
-    - The subject line.  
-    - The chosen middle paragraph, keeping facts unchanged.   
-  - Returns `(subject, body_html)` where `body_html` is a full HTML email with:  
-    - Greeting (using HR name if available).  
-    - Template describing your experience (Power BI, SQL, Azure, pipelines, etc.).  
-    - Bulleted list of key skills and responsibilities.  
-    - Closing and contact details. 
+`http://127.0.0.1:5000`
 
-### 2. Sending emails (`send_email.py`)
+Workflow:
 
-- Connects to Gmail SMTP over SSL (`smtp.gmail.com:465`) using your App Password.   
-- Builds a multipart email with:  
-  - HTML body (rendering `<b>Power BI</b>` etc. as bold).  
-  - A PDF resume attachment (`Manoj_Kollu_Resume.pdf` by default).  
-- Sends the message to the target email address.
+1. Upload recruiter file
+2. Set defaults (role, limits, paths)
+3. Load columns
+4. Map columns
+5. Preview
+6. Confirm and send
 
-### 3. Orchestration and logging (`main.py`)
+## Run (CLI)
 
-- Loads `recruiters.csv` via `pandas.read_csv`.   
-- Cleans and filters data:  
-  - Drops rows with missing/invalid emails.  
-  - Optionally filters roles to BI / data roles using regex keywords.[1]
-- Loads `sent_log.csv` (if present) to build a set of previously contacted emails.   
-- Loops over each contact:  
-  - Skips if email already exists in `sent_log.csv`.  
-  - Respects a configurable `DAILY_LIMIT`.  
-  - Calls `generate_email()` and `send_email()` (if not in dry‑run mode).  
-  - Waits `time.sleep(delay_seconds)` between sends to avoid burst activity.  
-  - On success, appends a new row to `sent_log.csv` with timestamp and metadata.   
-  - On error, prints the error and continues.
+Preview only:
 
-This design ensures idempotency (no double‑mailing) and gives you a full history of outreach.
+```bash
+python main.py --input recruiters.csv --preview-only
+```
 
-***
+Actual send:
 
-## Usage (CLI version)
+```bash
+python main.py --input recruiters.csv --send --daily-limit 30 --delay-seconds 10
+```
 
-1. Place your resume PDF in the project root, e.g.:
+## Logging Behavior
 
-   ```text
-   Your_Resume.pdf
-   ```
+- `sent_log.csv`:
+  - Contains `SENT`, `FAILED`, and `DRY_RUN` rows.
+  - De-dup logic only treats `SENT` emails as already contacted.
+- `logs/run_history.csv`:
+  - Append-only run-level history with `RunId`.
+  - Useful for audits, analytics, and tracking retries.
 
-   and ensure `send_email.py` points to this filename.
+You do not need to delete logs between runs.
 
-2. Prepare `recruiters.csv` as described above. 
+## Notes
 
-3. Set dry‑run and limits in `main.py`:
-
-   ```python
-   DRY_RUN = True          # True = simulate, False = actually send
-   DAILY_LIMIT = 30        # max emails per run
-   ```
-
-4. Run:
-
-   ```bash
-   python main.py
-   ```
-
-5. When comfortable with the previews and logs, switch `DRY_RUN = False` and run again to send real emails.
-
-`sent_log.csv` will be created/updated automatically.
-
-***
-
-## Optional: Web UI (Flask or Streamlit)
-
-Although the core logic is CLI‑based, you can wrap it with a simple front‑end:
-
-- **Streamlit**:  
-  - `app.py` with file uploader, “Dry run” checkbox, and basic charts (emails by role/company).[2]
-  - Run with `python -m streamlit run app.py`.
-
-- **Flask**:  
-  - `app.py` with `/` (upload form) and `/run` (execute outreach and show results table).[3]
-  - Run with `python app.py` and open `http://127.0.0.1:5000/`.
-
-Both reuse `generate_email.py`, `send_email.py`, and `sent_log.csv` for the actual logic.
-
-***
-
-## Safety and etiquette
-
-- **Rate limits and spam**  
-  - Keep a reasonable delay between emails (10–30 seconds) and a daily cap (e.g., 20–50 emails) to avoid being flagged by email providers.   
-
-- **Honesty and content**  
-  - Ensure the templates and any LLM‑generated text accurately reflect your real skills and experience; do not let the model invent projects or years of experience.[4]
-
-- **Data privacy**  
-  - Treat the recruiter email lists and logs as sensitive data.  
-  - Do not commit `recruiters.csv`, `sent_log.csv`, or `.env` to public repos.
-
-- **Platform policies**  
-  - Use this tool to contact people who have explicitly shared email addresses for job applications (e.g., in job posts, referrals, or public HR contact lists).[1]
-  - For LinkedIn itself, keep final actions (messages, connection requests) manual to stay within LinkedIn’s automation policy.[5][6]
-
-***
-
-## Possible extensions
-
-- **LinkedIn message generator**:  
-  - Use the same recruiter lists (with LinkedIn URLs) to generate short, personalized LinkedIn connection messages that you manually paste into LinkedIn.[1]
-
-- **Response tracking**:  
-  - Add a `Status` column to `sent_log.csv` and update it manually with “Responded”, “Interview”, etc., then build simple analytics.
-
-- **More role templates**:  
-  - Extend role detection and templates to cover Data Scientist, ML Engineer, or generic Software Engineer roles.
-
-***
+- `LLM_API_KEY` is optional. If unavailable, template generation still works.
+- Keep `.env`, contact lists, and logs private.
+- Send responsibly and follow platform policies and anti-spam best practices.

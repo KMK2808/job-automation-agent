@@ -1,0 +1,12 @@
+.env
+sent_log.csv
+contact_status.csv
+recruiters.csv
+tmp_contacts.csv
+logs/
+*.xlsx
+*.xls
+*.pdf
+uploads/
+__pycache__/
+*.pyc
