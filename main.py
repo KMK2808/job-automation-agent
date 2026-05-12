@@ -28,7 +28,7 @@ def parse_args():
     )
     parser.add_argument(
         "--resume-path",
-        default=os.getenv("RESUME_PATH", "Kollu_Manoj_Kumar_Data_engineering_PowerBI_2026.pdf"),
+        default=os.getenv("RESUME_PATH", "resume.pdf"),
         help="Resume PDF path",
     )
     parser.add_argument("--preview-limit", type=int, default=10, help="Preview rows to print")

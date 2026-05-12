@@ -32,7 +32,7 @@ def _base_context():
         "delay_seconds": "10",
         "log_path": "sent_log.csv",
         "template_path": "auto",
-        "resume_path": "Kollu_Manoj_Kumar_Data_engineering_PowerBI_2026.pdf",
+        "resume_path": "resume.pdf",
         "sheet_name": "",
         "allow_resend": False,
         "status_path": "contact_status.csv",
@@ -59,7 +59,7 @@ def index():
             "log_path": request.form.get("log_path", "sent_log.csv"),
             "template_path": request.form.get("template_path", "auto"),
             "resume_path": request.form.get(
-                "resume_path", "Kollu_Manoj_Kumar_Data_engineering_PowerBI_2026.pdf"
+                "resume_path", "resume.pdf"
             ),
             "status_path": request.form.get("status_path", "contact_status.csv"),
             "sheet_name": request.form.get("sheet_name", ""),

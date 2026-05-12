@@ -75,7 +75,7 @@ CANDIDATE_NAME=Your Name
 CANDIDATE_EMAIL=yourgmail@gmail.com
 CANDIDATE_PHONE=your_phone
 YEARS_EXPERIENCE=3.5
-RESUME_PATH=Kollu_Manoj_Kumar_Data_engineering_PowerBI_2026.pdf
+RESUME_PATH=resume.pdf
 EMAIL_TEMPLATE_PATH=templates/email_template.html
 LLM_MODEL=gpt-4o-mini
 ```

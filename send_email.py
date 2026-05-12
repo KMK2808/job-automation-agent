@@ -14,7 +14,7 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 SENDER_NAME = os.getenv("SENDER_NAME", "Job Automation Agent")
 
 DEFAULT_RESUME_PATH = os.getenv(
-    "RESUME_PATH", "Kollu_Manoj_Kumar_Data_engineering_PowerBI_2026.pdf"
+    "RESUME_PATH", "resume.pdf"
 )
 
 
